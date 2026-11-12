@@ -12,7 +12,7 @@
         "inputs": {
           "prompt": "a product rotating on a turntable, soft studio light",
           "width": 768,
-          "height": 1360,
+          "height": 1344,
           "length": 141,
           "first_frame": ["1", 0]
         }
