@@ -6,6 +6,23 @@ adheres to [Semantic Versioning](https://semver.org/). The job contract is
 versioned separately as `h3-serverless/v1.1` (see
 [`contract/worker-contract.md`](contract/worker-contract.md)).
 
+## [1.0.3] - 2026-11-12
+
+### Fixed
+
+- Hub build/validation pod deployment on Blackwell GPUs (the CUDA ceiling moved
+  again): `allowedCudaVersions` in [`.runpod/hub.json`](.runpod/hub.json) and
+  [`.runpod/tests.json`](.runpod/tests.json) now lists CUDA `13.0`–`13.4`.
+  The field is an exact-match list, not a minimum, and RunPod hosts for
+  RTX PRO 6000 Blackwell now advertise 13.3/13.4, so with the previous
+  `13.0`–`13.2` list the Hub validator saw no eligible machines and failed with
+  "There were no instances available" for `BLACKWELL_96`. The image is built on
+  CUDA 13.0 and newer 13.x drivers are backward compatible, so those hosts run
+  it unchanged.
+- The same list is used for endpoint deployments, so workers keep being placed
+  on the whole `BLACKWELL_96` fleet instead of only hosts on older CUDA
+  versions.
+
 ## [1.0.2] - 2026-11-12
 
 ### Fixed
