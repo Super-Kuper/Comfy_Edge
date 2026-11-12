@@ -1,0 +1,44 @@
+{
+  "input": {
+    "prompt": {
+      "1": {
+        "class_type": "UnetLoaderGGUF",
+        "inputs": {
+          "unet_name": "MiniMax-H3-FL2VA-Q4_K_M.gguf"
+        }
+      },
+      "2": {
+        "class_type": "LoraLoaderModelOnly",
+        "inputs": {
+          "model": ["1", 0],
+          "lora_name": "minimax_h3_turbo_v4_step600_ema_pruned_comfyui.safetensors",
+          "strength_model": 1.0
+        }
+      },
+      "3": {
+        "class_type": "MiniMaxH3ImageToVideo",
+        "inputs": {
+          "prompt": "a cat walking across a sunlit room",
+          "width": 768,
+          "height": 1360,
+          "length": 141
+        }
+      }
+    },
+    "parameter": {
+      "orientation": "9:16",
+      "visible_frames": 141,
+      "sound": "native",
+      "mode": "FL2VA",
+      "pip": false
+    },
+    "acceleration": {
+      "gpu_class": "RTX PRO 6000",
+      "steps": 8,
+      "use_turbo": true,
+      "lora_name": "minimax_h3_turbo_v4_step600_ema_pruned_comfyui.safetensors",
+      "sampler_name": "euler",
+      "scheduler": "simple"
+    }
+  }
+}

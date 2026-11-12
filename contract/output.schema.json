@@ -1,0 +1,166 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/h3-serverless/output.schema.json",
+  "title": "MiniMax H3 serverless worker output (h3-serverless/v1.1)",
+  "description": "Result of one job: the generated video (exactly one of video or video_url) and the measured telemetry.",
+  "type": "object",
+  "required": [
+    "telemetry"
+  ],
+  "properties": {
+    "video": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Base64-encoded video for small results (see OUTPUT_INLINE_MAX_MB / OUTPUT_INLINE_BUDGET_MB)."
+    },
+    "video_url": {
+      "type": "string",
+      "pattern": "^https?://",
+      "description": "Presigned HTTP(S) URL for large results uploaded to S3-compatible storage (see S3_* and OUTPUT_URL_TTL_SECONDS)."
+    },
+    "telemetry": {
+      "type": "object",
+      "description": "Execution-fact telemetry. The required fields below are the minimum; additional v1.1 fields are documented in contract/worker-contract.md.",
+      "required": [
+        "gpu_cc",
+        "gpu_class",
+        "sol_called",
+        "steps",
+        "orientation",
+        "visible_frames",
+        "audio",
+        "cache",
+        "seconds"
+      ],
+      "properties": {
+        "gpu_cc": {
+          "type": "number",
+          "description": "Compute capability of the GPU that ran the job (torch.cuda)."
+        },
+        "gpu_class": {
+          "type": "string",
+          "description": "GPU class reported by torch.cuda, for example RTX PRO 6000 or RTX 5090."
+        },
+        "sol_called": {
+          "type": "boolean",
+          "description": "Whether a Sol-H3 node was present in the executed graph."
+        },
+        "sol_backend": {
+          "type": "string",
+          "description": "Sol-H3 runtime identifier; present when sol_called is true."
+        },
+        "steps": {
+          "type": "integer",
+          "description": "Sampler steps read from the executed graph."
+        },
+        "lora_hash": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "sha256 of the LoRA file on the model volume."
+        },
+        "lora_name": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "LoRA file name from the executed graph."
+        },
+        "lora_applied": {
+          "type": "boolean",
+          "description": "Whether a LoRA loader node was present in the executed graph."
+        },
+        "mode": {
+          "type": "string",
+          "description": "H3 conditioning mode read from the executed graph: FL2VA or Ref2VA."
+        },
+        "orientation": {
+          "type": "string",
+          "description": "Video orientation measured with ffprobe: 16:9 or 9:16."
+        },
+        "pip": {
+          "type": "boolean",
+          "description": "Whether a picture-in-picture node was present in the executed graph."
+        },
+        "visible_frames": {
+          "type": "integer",
+          "description": "Number of video frames measured with ffprobe."
+        },
+        "audio": {
+          "type": "boolean",
+          "description": "Whether the output file has an audio stream (ffprobe)."
+        },
+        "cache": {
+          "type": "string",
+          "enum": [
+            "hit",
+            "miss"
+          ],
+          "description": "Conditioning-cache fact; miss when the optional cache package is not used by the graph."
+        },
+        "seconds": {
+          "type": "number",
+          "description": "Measured wall-clock seconds from graph submit to history completion."
+        },
+        "continuation_nodes": {
+          "type": "boolean",
+          "description": "Whether guided-continuation nodes were present in the executed graph."
+        },
+        "window_length": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "overlap_frames": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "extension_frames": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "append_frames": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "latent_tail_broken": {
+          "type": "boolean"
+        },
+        "first_frame_connected": {
+          "type": "boolean"
+        },
+        "last_frame_connected": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "oneOf": [
+    {
+      "required": [
+        "video"
+      ]
+    },
+    {
+      "required": [
+        "video_url"
+      ]
+    }
+  ],
+  "not": {
+    "required": [
+      "video",
+      "video_url"
+    ]
+  },
+  "additionalProperties": true
+}

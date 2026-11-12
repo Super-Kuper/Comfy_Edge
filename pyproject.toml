@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "h3-serverless-worker"
+version = "1.0.0"
+description = "RunPod serverless worker for the MiniMax H3 ComfyUI stack (Sol-H3 runtime + turbo LoRAs)"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "MiniMax H3 Sol-Turbo Serverless" }]
+keywords = ["runpod", "serverless", "comfyui", "minimax-h3", "video", "audio"]
+classifiers = [
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+]
+
+# The worker executes a prepared ComfyUI API graph and returns
+# `{video|video_url, telemetry}` (contract/worker-contract.md).
+dependencies = [
+    "httpx>=0.27,<0.29",
+    "runpod==2.2.1",
+    "boto3>=1.35",
+]
+
+[project.scripts]
+h3-worker = "h3_worker.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]

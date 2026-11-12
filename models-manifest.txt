@@ -1,0 +1,26 @@
+# Model manifest for the MiniMax H3 Sol-Turbo serverless worker.
+#
+# Format (tab-separated): <models subdir>	<filename>	<URL>
+# Consumed by populate-volume.sh at worker boot (VOLUME_AUTOPOPULATE=true):
+# files land in /runpod-volume/models/<subdir>/<filename>, which is exactly the
+# layout extra_model_paths.yaml exposes to ComfyUI.
+#
+# All URLs are pinned to immutable Hugging Face commit revisions. Sizes are
+# approximate; the full set is ~62 GB (both DiTs + encoder + LoRAs + VAEs), so
+# attach a network volume of at least 100 GB (150 GB recommended).
+#
+# The worker only reads files from the volume: adapt this manifest to use other
+# checkpoints/encoders/LoRAs as long as the filenames referenced by the ComfyUI
+# graph match the files on the volume.
+
+# ── DiT (GGUF, Q4_K_M) ──
+diffusion_models	MiniMax-H3-FL2VA-Q4_K_M.gguf	https://huggingface.co/realrebelai/MiniMax-H3_GGUFs/resolve/daf03b4ca652cce16dfd4fcf91e79c52ffa5c1e7/MiniMax-H3-FL2VA-Q4_K_M.gguf
+diffusion_models	MiniMax-H3-REF2VA-Q4_K_M.gguf	https://huggingface.co/realrebelai/MiniMax-H3_GGUFs/resolve/daf03b4ca652cce16dfd4fcf91e79c52ffa5c1e7/MiniMax-H3-REF2VA-Q4_K_M.gguf
+# ── Text encoder Qwen3-VL 32B (GGUF, Q4_K_M) ──
+text_encoders	qwen3vl-32B-MiniMax-H3-Q4_K_M.gguf	https://huggingface.co/realrebelai/MiniMax-H3_GGUFs/resolve/daf03b4ca652cce16dfd4fcf91e79c52ffa5c1e7/qwen3vl-32B-MiniMax-H3-Q4_K_M.gguf
+# ── TurboLoRAs (bf16, 8-step) ──
+loras	minimax_h3_turbo_v4_step600_ema_pruned_comfyui.safetensors	https://huggingface.co/drbaph/MiniMax-H3-Turbo-Lora-ComfyUI/resolve/bb2bc497cbaca89dadd0bcf1856eed4f8275be20/minimax_h3_turbo_v4_step600_ema_pruned_comfyui.safetensors
+loras	minimax_h3_ref2v_turbo_8step_v1.0_768p_comfyui_resized_avg_rank_20_bf16.safetensors	https://huggingface.co/drbaph/MiniMax-H3-Turbo-Lora-ComfyUI/resolve/bb2bc497cbaca89dadd0bcf1856eed4f8275be20/minimax_h3_ref2v_turbo_8step_v1.0_768p_comfyui_resized_avg_rank_20_bf16.safetensors
+# ── VAEs (video fp16 + audio fp32) ──
+vae	minimax_h3_video_vae_fp16.safetensors	https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/54472221d27c695fca9621b0c3ed52f06c4af707/vae/minimax_h3_video_vae_fp16.safetensors
+vae	minimax_h3_audio_vae_fp32.safetensors	https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/54472221d27c695fca9621b0c3ed52f06c4af707/vae/minimax_h3_audio_vae_fp32.safetensors

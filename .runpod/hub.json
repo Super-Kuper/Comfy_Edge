@@ -1,0 +1,116 @@
+{
+  "title": "MiniMax H3 Sol-Turbo — Video + Audio",
+  "description": "ComfyUI serverless worker for MiniMax H3: executes a prepared ComfyUI API graph for text/image/first-last-frame/reference-to-video with synchronized audio, using the Sol-H3 exact runtime, 8-step turbo LoRAs and multi-window continuation. Returns the generated video plus execution-fact telemetry. Models download to your network volume on first boot.",
+  "type": "serverless",
+  "category": "video",
+  "config": {
+    "runsOn": "GPU",
+    "containerDiskInGb": 30,
+    "gpuCount": 1,
+    "gpuIds": "BLACKWELL_96",
+    "allowedCudaVersions": [
+      "13.0"
+    ],
+    "env": [
+      {
+        "key": "VOLUME_AUTOPOPULATE",
+        "input": {
+          "type": "boolean",
+          "name": "Auto-download models",
+          "description": "Download the models listed in models-manifest.txt to the attached network volume at worker boot. Requires a network volume of at least 100 GB (150 GB recommended).",
+          "default": true,
+          "trueValue": "true",
+          "falseValue": "false"
+        }
+      },
+      {
+        "key": "HF_TOKEN",
+        "input": {
+          "name": "Hugging Face token",
+          "type": "string",
+          "description": "Optional — only needed if you replace the public models in models-manifest.txt with gated Hugging Face repositories.",
+          "default": "",
+          "advanced": true
+        }
+      },
+      {
+        "key": "JOB_TIMEOUT_SECONDS",
+        "input": {
+          "name": "Job timeout (seconds)",
+          "type": "number",
+          "description": "Maximum time a single generation job may run before the worker aborts it. Must be less than or equal to the endpoint timeout.",
+          "min": 300,
+          "max": 86400,
+          "default": 10800,
+          "advanced": true
+        }
+      },
+      {
+        "key": "COMFY_BOOT_TIMEOUT_SECONDS",
+        "input": {
+          "name": "ComfyUI boot timeout (seconds)",
+          "type": "number",
+          "description": "How long the worker waits for the local ComfyUI server to become ready.",
+          "min": 60,
+          "max": 3600,
+          "default": 1200,
+          "advanced": true
+        }
+      },
+      {
+        "key": "LINK_VOLUME_NODES",
+        "input": {
+          "type": "boolean",
+          "name": "Use custom nodes from the volume",
+          "description": "Symlink custom_nodes from /runpod-volume/custom_nodes into ComfyUI. Leave disabled: the worker image already bakes the required nodes.",
+          "default": false,
+          "trueValue": "true",
+          "falseValue": "false",
+          "advanced": true
+        }
+      },
+      {
+        "key": "S3_ENDPOINT",
+        "input": {
+          "name": "S3 endpoint",
+          "type": "string",
+          "description": "Optional S3/MinIO endpoint. Configure S3_* to return large videos as presigned video_url instead of inline base64.",
+          "default": "",
+          "advanced": true
+        }
+      },
+      {
+        "key": "S3_ACCESS_KEY",
+        "input": {
+          "name": "S3 access key",
+          "type": "string",
+          "description": "S3/MinIO access key (secret — endpoint env only).",
+          "default": "",
+          "advanced": true
+        }
+      },
+      {
+        "key": "S3_SECRET_KEY",
+        "input": {
+          "name": "S3 secret key",
+          "type": "string",
+          "description": "S3/MinIO secret key (secret — endpoint env only).",
+          "default": "",
+          "advanced": true
+        }
+      },
+      {
+        "key": "S3_BUCKET",
+        "input": {
+          "name": "S3 bucket",
+          "type": "string",
+          "description": "Bucket for large video output (alias: OUTPUT_BUCKET).",
+          "default": "",
+          "advanced": true
+        }
+      }
+    ]
+  },
+  "version": "v1.0.0",
+  "changelog": "## v1.0.0\n\n- Initial public release: MiniMax H3 video + audio serverless worker on ComfyUI v0.44.0 (CUDA 13.0).\n- Native H3 graph execution with contract `h3-serverless/v1.1`: prepared ComfyUI API graph in, video + execution-fact telemetry out.\n- Sol-H3 exact runtime, 8-step turbo LoRAs, multi-window continuation; public custom nodes pinned in the image.\n- Network-volume model auto-download (`models-manifest.txt`, `VOLUME_AUTOPOPULATE`) and optional S3 presigned `video_url` delivery.\n"
+}
