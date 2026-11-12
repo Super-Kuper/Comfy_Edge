@@ -16,8 +16,9 @@ changes are listed in [`CHANGELOG.md`](CHANGELOG.md).
    holds about 62 GB of models plus video and temporary files.
 2. **Deploy the worker.** Publish this repository as a GitHub release to
    [RunPod Hub](https://console.runpod.io/hub) (metadata:
-   [`.runpod/hub.json`](.runpod/hub.json) — `BLACKWELL_96`, CUDA 13.0, 30 GB
-   container disk), or build the image and create a serverless endpoint yourself.
+   [`.runpod/hub.json`](.runpod/hub.json) — `BLACKWELL_96`, CUDA 13.0–13.2,
+   30 GB container disk), or build the image and create a serverless endpoint
+   yourself.
 3. **Attach the volume** at `/runpod-volume`, use endpoint type `QUEUE` and set
    **Max workers = 1**: a cold worker loads tens of gigabytes of weights, so one
    warm worker with queued jobs beats several cold ones.
@@ -34,7 +35,7 @@ changes are listed in [`CHANGELOG.md`](CHANGELOG.md).
 | Item | Requirement |
 |---|---|
 | GPU | 96 GB Blackwell (`BLACKWELL_96`, e.g. RTX PRO 6000), compute capability 12.0 |
-| CUDA, endpoint | CUDA 13.0 host; `QUEUE` type, max workers 1, timeout ≥ `JOB_TIMEOUT_SECONDS` |
+| CUDA, endpoint | CUDA 13.0+ host driver (13.0–13.2; CUDA is backward compatible within 13.x, so newer drivers are allowed); `QUEUE` type, max workers 1, timeout ≥ `JOB_TIMEOUT_SECONDS` |
 | Network volume | at least 100 GB at `/runpod-volume` (150 GB recommended) |
 | Registry | The built image must be available to RunPod (Hub build or your registry) |
 | 32 GB GPUs | Not supported out of the box (RTX 5090 needs a smaller quant and text-encoder offload) |

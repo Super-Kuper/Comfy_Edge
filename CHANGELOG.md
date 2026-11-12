@@ -6,6 +6,24 @@ adheres to [Semantic Versioning](https://semver.org/). The job contract is
 versioned separately as `h3-serverless/v1.1` (see
 [`contract/worker-contract.md`](contract/worker-contract.md)).
 
+## [1.0.1] - 2026-11-12
+
+### Fixed
+
+- Hub build/validation pod deployment on Blackwell GPUs: `allowedCudaVersions`
+  in [`.runpod/hub.json`](.runpod/hub.json) and
+  [`.runpod/tests.json`](.runpod/tests.json) now lists CUDA `13.1` and `13.2`
+  next to `13.0`. The image is built on CUDA 13.0, and CUDA is backward
+  compatible within a major version, so hosts advertising newer 13.x drivers run
+  it unchanged. With only `13.0` listed, most RTX PRO 6000 capacity was filtered
+  out and the Hub validator failed with "There were no instances available"
+  for `BLACKWELL_96` even though GPUs were free.
+- Hub build validation now targets the most available 96 GB Blackwell variant:
+  [`.runpod/tests.json`](.runpod/tests.json) uses
+  `NVIDIA RTX PRO 6000 Blackwell Server Edition` (the health check is
+  GPU-agnostic inside `BLACKWELL_96`), so the validator pod does not depend on
+  the scarcer Workstation/Max-Q stock.
+
 ## [1.0.0] - 2026-11-12
 
 First public release: a RunPod serverless worker for MiniMax H3 video + audio

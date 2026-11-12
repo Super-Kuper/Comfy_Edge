@@ -9,7 +9,9 @@
     "gpuCount": 1,
     "gpuIds": "BLACKWELL_96",
     "allowedCudaVersions": [
-      "13.0"
+      "13.0",
+      "13.1",
+      "13.2"
     ],
     "env": [
       {
@@ -111,6 +113,6 @@
       }
     ]
   },
-  "version": "v1.0.0",
-  "changelog": "## v1.0.0\n\n- Initial public release: MiniMax H3 video + audio serverless worker on ComfyUI v0.44.0 (CUDA 13.0).\n- Native H3 graph execution with contract `h3-serverless/v1.1`: prepared ComfyUI API graph in, video + execution-fact telemetry out.\n- Sol-H3 exact runtime, 8-step turbo LoRAs, multi-window continuation; public custom nodes pinned in the image.\n- Network-volume model auto-download (`models-manifest.txt`, `VOLUME_AUTOPOPULATE`) and optional S3 presigned `video_url` delivery.\n"
+  "version": "v1.0.1",
+  "changelog": "## v1.0.1\n\n- Fix build/test deployment on Blackwell: `allowedCudaVersions` now lists 13.1 and 13.2 in addition to 13.0. CUDA is backward compatible within a major version, so hosts advertising newer 13.x drivers run the CUDA 13.0 image unchanged; previously they were filtered out and the Hub validator reported no available instances for `BLACKWELL_96`.\n- The Hub build test now targets the most available 96 GB Blackwell variant (`NVIDIA RTX PRO 6000 Blackwell Server Edition`); the health check is GPU-agnostic inside `BLACKWELL_96`.\n\n## v1.0.0\n\n- Initial public release: MiniMax H3 video + audio serverless worker on ComfyUI v0.44.0 (CUDA 13.0).\n- Native H3 graph execution with contract `h3-serverless/v1.1`: prepared ComfyUI API graph in, video + execution-fact telemetry out.\n- Sol-H3 exact runtime, 8-step turbo LoRAs, multi-window continuation; public custom nodes pinned in the image.\n- Network-volume model auto-download (`models-manifest.txt`, `VOLUME_AUTOPOPULATE`) and optional S3 presigned `video_url` delivery.\n"
 }
