@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "h3-serverless-worker"
-version = "1.0.1"
+version = "1.0.2"
 description = "RunPod serverless worker for the MiniMax H3 ComfyUI stack (Sol-H3 runtime + turbo LoRAs)"
 readme = "README.md"
 requires-python = ">=3.12"

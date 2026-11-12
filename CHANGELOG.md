@@ -6,6 +6,18 @@ adheres to [Semantic Versioning](https://semver.org/). The job contract is
 versioned separately as `h3-serverless/v1.1` (see
 [`contract/worker-contract.md`](contract/worker-contract.md)).
 
+## [1.0.2] - 2026-11-12
+
+### Fixed
+
+- Contract request examples now use a canvas aligned to the H3 latent grid:
+  [`contract/examples/request.json`](contract/examples/request.json) and
+  [`contract/examples/request-assets.json`](contract/examples/request-assets.json)
+  use `768x1344` for 9:16 instead of `768x1360`. At `768x1360` the video latent
+  is 85x48, so `MiniMaxH3ImageToVideo` failed in `patchify_video` on the odd
+  side; the node requires dimensions divisible by 32 (9:16 — `768x1344`,
+  16:9 — `1344x768`).
+
 ## [1.0.1] - 2026-11-12
 
 ### Fixed
