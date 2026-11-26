@@ -8,4 +8,4 @@ assets?, action?}}`, выход `{video | video_url, telemetry}`; источни
 `runpod`) на уровне модулей: тесты должны идти без GPU и сети.
 """
 
-__version__ = "1.0.2"
+__version__ = "1.1.0"

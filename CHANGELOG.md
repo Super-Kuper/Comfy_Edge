@@ -6,7 +6,7 @@ adheres to [Semantic Versioning](https://semver.org/). The job contract is
 versioned separately as `h3-serverless/v1.1` (see
 [`contract/worker-contract.md`](contract/worker-contract.md)).
 
-## [Unreleased]
+## [1.1.0] - 2026-11-26
 
 ### Added
 
