@@ -139,6 +139,22 @@
         },
         "last_frame_connected": {
           "type": "boolean"
+        },
+        "cold_start_ms": {
+          "type": "number",
+          "description": "Process start to ComfyUI ready, measured on the first generation job of the worker."
+        },
+        "worker_started_at": {
+          "type": "string"
+        },
+        "job_received_at": {
+          "type": "string"
+        },
+        "handler_ready_at": {
+          "type": "string"
+        },
+        "first_job": {
+          "type": "boolean"
         }
       },
       "additionalProperties": true

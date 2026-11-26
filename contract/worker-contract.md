@@ -71,6 +71,12 @@ response.
   `mode`, `pip`, `continuation_nodes`, `window_length`, `overlap_frames`,
   `extension_frames`, `append_frames`, `latent_tail_broken`,
   `first_frame_connected`, `last_frame_connected`.
+- Cold-start facts (for cost accounting): the first generation job of a worker
+  returns `cold_start_ms` (process start → ComfyUI ready), `worker_started_at`,
+  `job_received_at`, `handler_ready_at` and `first_job=true`. Later jobs omit
+  `cold_start_ms`; the worker is warm. The value covers container/ComfyUI boot,
+  not model loading done by the first prompt — billing reconciliation in the
+  application covers the full billed worker time.
 - Telemetry comes from execution facts: `gpu_cc`/`gpu_class` from `torch.cuda`;
   `seconds` measured from submit to history completion; `visible_frames`, `audio`
   and `orientation` from `ffprobe` on the produced mp4; `steps`, `sol_called`,
@@ -82,6 +88,12 @@ response.
   measured facts. If a fact cannot be measured the job fails with
   `telemetry_missing`, or `telemetry_ambiguous` when sampler steps in the
   executed graph disagree.
+- A graph without audio nodes is valid. When the client asks for a silent result
+  (`"sound": "off"` in `parameter`), the graph omits `VAEDecodeAudio` and the
+  `audio` input of `CreateVideo`, so the produced mp4 has no audio track and
+  telemetry reports the measured `"audio": false`. The worker neither builds nor
+  edits the graph and does not interpret `parameter.sound`: `audio` always
+  describes the file that was actually produced.
 
 ## 3. Health
 

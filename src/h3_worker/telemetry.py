@@ -453,6 +453,29 @@ def _input_connected(node: Mapping[str, Any], name: str) -> bool:
 # ---------------------------------------------------------------------------
 
 
+def _merge_cold_start(
+    telemetry: dict[str, Any],
+    *,
+    cold_start_ms: float | None,
+    worker_started_at: str | None,
+    job_received_at: str | None,
+    handler_ready_at: str | None,
+    first_job: bool | None,
+) -> None:
+    """Добавить фактические метки cold start, не перетирая historical telemetry."""
+
+    if cold_start_ms is not None:
+        telemetry["cold_start_ms"] = float(cold_start_ms)
+    if worker_started_at is not None:
+        telemetry["worker_started_at"] = worker_started_at
+    if job_received_at is not None:
+        telemetry["job_received_at"] = job_received_at
+    if handler_ready_at is not None:
+        telemetry["handler_ready_at"] = handler_ready_at
+    if first_job is not None:
+        telemetry["first_job"] = bool(first_job)
+
+
 def build_telemetry(
     prompt: Mapping[str, Any] | None,
     parameter: Mapping[str, Any] | None = None,
@@ -464,6 +487,11 @@ def build_telemetry(
     elapsed_seconds: float | None = None,
     lora_hash_fn: LoraHashFn | None = None,
     cache: str | None = None,
+    cold_start_ms: float | None = None,
+    worker_started_at: str | None = None,
+    job_received_at: str | None = None,
+    handler_ready_at: str | None = None,
+    first_job: bool | None = None,
 ) -> dict[str, Any]:
     """Собрать телеметрию ответа: passthrough history или факты исполнения.
 
@@ -481,6 +509,14 @@ def build_telemetry(
 
     passthrough = _passthrough_telemetry(history_entry, gpu)
     if passthrough is not None:
+        _merge_cold_start(
+            passthrough,
+            cold_start_ms=cold_start_ms,
+            worker_started_at=worker_started_at,
+            job_received_at=job_received_at,
+            handler_ready_at=handler_ready_at,
+            first_job=first_job,
+        )
         return passthrough
 
     if not isinstance(prompt, Mapping) or not prompt:
@@ -580,6 +616,18 @@ def build_telemetry(
     }
     if sol_called:
         telemetry["sol_backend"] = "comfyui-sol-h3"
+    # Фактические метки воркера: приложение считает стоимость по ним, а не по
+    # калиброванной константе. cold_start_ms — process start → ComfyUI готов;
+    # модель может грузиться первым prompt'ом, поэтому billing-сверка остаётся
+    # вторым, более полным источником.
+    _merge_cold_start(
+        telemetry,
+        cold_start_ms=cold_start_ms,
+        worker_started_at=worker_started_at,
+        job_received_at=job_received_at,
+        handler_ready_at=handler_ready_at,
+        first_job=first_job,
+    )
 
     _validate_required(telemetry, "факты исполнения")
     return telemetry

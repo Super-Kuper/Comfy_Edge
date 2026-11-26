@@ -6,6 +6,24 @@ adheres to [Semantic Versioning](https://semver.org/). The job contract is
 versioned separately as `h3-serverless/v1.1` (see
 [`contract/worker-contract.md`](contract/worker-contract.md)).
 
+## [Unreleased]
+
+### Added
+
+- Cold-start facts for cost accounting: the first generation job of a worker
+  reports `cold_start_ms` (process start → ComfyUI ready), `worker_started_at`,
+  `job_received_at`, `handler_ready_at` and `first_job`. The application uses
+  them for per-batch cost; full billed cold start is reconciled from RunPod
+  billing.
+
+### Changed
+
+- Contract clarification (no runtime change): a graph without audio nodes is
+  valid, and the measured `telemetry.audio` is `false` for a silent output. The
+  worker neither builds nor edits the graph and does not interpret
+  `parameter.sound`; `audio` is always the fact of the produced file (see
+  [`contract/worker-contract.md`](contract/worker-contract.md) §2).
+
 ## [1.0.3] - 2026-11-12
 
 ### Fixed

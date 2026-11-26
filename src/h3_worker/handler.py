@@ -20,6 +20,7 @@ import tempfile
 import time
 from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -33,6 +34,12 @@ from .storage import OutputStorage, deliver_output
 from .telemetry import build_telemetry
 
 _LOG = logging.getLogger(__name__)
+
+#: Старт процесса воркера: от него считается фактический cold start.
+_WORKER_STARTED_MONOTONIC = time.monotonic()
+_WORKER_STARTED_AT = datetime.now(UTC).isoformat()
+#: Cold start отдаётся только первым generation-job'ом; дальше воркер тёплый.
+_COLD_START_REPORTED = False
 
 # Инъекции для тестов: реальные функции — дефолты Dependencies/build_handler.
 AssetsDownloader = Callable[[list[Asset], Config], Awaitable[list[Path]]]
@@ -147,7 +154,9 @@ def _write_temp_output(data: bytes, filename: str) -> Path:
 async def execute(job: Any, deps: Dependencies) -> dict[str, Any]:
     """Выполнить один job; ошибки — ``WorkerError`` наружу (job FAILED)."""
 
+    global _COLD_START_REPORTED
     payload = _validate_job(job)
+    job_received_at = datetime.now(UTC).isoformat()
     action = payload.get("action")
     if action == "health":
         # Health не трогает assets и не грузит модель (`contract/worker-contract.md` §3).
@@ -174,6 +183,14 @@ async def execute(job: Any, deps: Dependencies) -> dict[str, Any]:
 
     # ComfyUI может стартовать дольше endpoint'а — ждём до COMFY_BOOT_TIMEOUT_SECONDS.
     await comfy.wait_ready(config.comfy_boot_timeout_seconds)
+    handler_ready_at = datetime.now(UTC).isoformat()
+    first_job = not _COLD_START_REPORTED
+    cold_start_ms = (
+        max(0.0, (time.monotonic() - _WORKER_STARTED_MONOTONIC) * 1000.0)
+        if first_job
+        else None
+    )
+    _COLD_START_REPORTED = True
     # Assets — до submit: граф ссылается на имена файлов в ComfyUI/input.
     asset_paths = await deps.assets_downloader(assets, config)
     if asset_paths:
@@ -212,6 +229,11 @@ async def execute(job: Any, deps: Dependencies) -> dict[str, Any]:
             elapsed_seconds=elapsed_seconds,
             lora_hash_fn=lora_hasher,
             cache="miss",
+            cold_start_ms=cold_start_ms,
+            worker_started_at=_WORKER_STARTED_AT,
+            job_received_at=job_received_at,
+            handler_ready_at=handler_ready_at,
+            first_job=first_job,
         )
         delivery = await deliver_output(output.data, output.filename, config, deps.storage)
     finally:
