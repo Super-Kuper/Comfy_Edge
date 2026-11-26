@@ -6,6 +6,22 @@ adheres to [Semantic Versioning](https://semver.org/). The job contract is
 versioned separately as `h3-serverless/v1.1` (see
 [`contract/worker-contract.md`](contract/worker-contract.md)).
 
+## [1.1.1] - 2026-11-26
+
+### Fixed
+
+- Hub image build no longer depends on the deleted upstream
+  `Mu5hr00moO/ComfyUI-MiniMaxH3-CLIPCached` repository. The build failed at
+  step 4/14 because `git clone` of that repository asked for credentials
+  (GitHub returned 404 after the repository was removed). The same pinned
+  commit `507c1ecd` is now installed from public forks; the SHA pin keeps the
+  installed code identical. A second mirror is tried, and if neither serves
+  the pin the image builds without this optional node (the default graph does
+  not use it), with a warning in the build log instead of a failed build.
+- `_pin_node` now returns a non-zero status when clone/checkout fails, so an
+  optional node can be handled with `if _pin_node ...`; critical nodes still
+  abort the build via `set -e`.
+
 ## [1.1.0] - 2026-11-26
 
 ### Added

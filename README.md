@@ -47,8 +47,8 @@ CUDA 13.0 image pinned by digest and adds the worker package, pinned nodes,
 `handler.py` and the volume scripts.
 
 ```bash
-docker build -t <registry>/minimax-h3-sol-turbo-serverless:1.1.0 .
-docker push <registry>/minimax-h3-sol-turbo-serverless:1.1.0
+docker build -t <registry>/minimax-h3-sol-turbo-serverless:1.1.1 .
+docker push <registry>/minimax-h3-sol-turbo-serverless:1.1.1
 ```
 
 Structural build without ComfyUI or a GPU (checks that the Dockerfile, package
@@ -60,7 +60,7 @@ docker build --build-arg BASE_IMAGE=python:3.12-slim \
 docker run --rm --entrypoint python h3-serverless:stub -c "import h3_worker"
 ```
 
-Optional: `H3_WORKER_VERSION` (`1.1.0`), `COMFYUI_VERSION` (`v0.44.0`). Pin by
+Optional: `H3_WORKER_VERSION` (`1.1.1`), `COMFYUI_VERSION` (`v0.44.0`). Pin by
 digest: `docker inspect --format='{{index .RepoDigests 0}}' <image>`.
 
 ## Job input
