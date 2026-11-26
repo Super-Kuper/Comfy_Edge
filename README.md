@@ -175,6 +175,11 @@ ComfyUI v0.44.0 and its native H3 nodes plus:
 | ComfyUI-Minimax-H3-Continuation | `e1768d5f` | MIT | guided-continuation nodes |
 | ComfyUI-MiniMaxH3-CLIPCached | `507c1ecd` | MIT | optional conditioning cache; unused by default, so `cache` is `miss` |
 
+The CLIPCached upstream repository (`Mu5hr00moO/ComfyUI-MiniMaxH3-CLIPCached`)
+was removed from GitHub; the image installs the same pinned commit `507c1ecd`
+from public forks. If none of the mirrors is reachable, the image still builds
+without this optional node (the default graph does not use it).
+
 ## Endpoint environment
 
 | Variable | Default | Purpose |
@@ -215,7 +220,8 @@ licenses of their Hugging Face repositories. Review them before use.
 - Weights are not bundled; a volume without the expected files fails the job
   visibly instead of silently falling back.
 - 32 GB Blackwell GPUs need a smaller quant and are not supported out of the box.
-- CLIPCached is installed but not used by the default graph (`cache: "miss"`);
+- CLIPCached is installed from a pinned public mirror but not used by the
+  default graph (`cache: "miss"`);
   picture-in-picture, voice and lip-sync are not implemented (`pip: false`).
 - Cold start is heavy (about 62 GB on first boot, then model loading per worker):
   prefer one warm worker with a queue and benchmark timeouts on your endpoint.

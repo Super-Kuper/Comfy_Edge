@@ -29,8 +29,9 @@
 #   city96/ComfyUI-GGUF @ 6ea2651e (+ pip gguf)       — UnetLoaderGGUF/CLIPLoaderGGUF
 #   xmarre/ComfyUI-Sol-H3 @ fe6a9618 (+ requirements) — SolH3Exact/SolH3Experimental
 #   ttulttul/ComfyUI-Minimax-H3-Continuation @ e1768d5f — continuation-ноды
-#   Mu5hr00moO/ComfyUI-MiniMaxH3-CLIPCached @ 507c1ecd — CLIP-кэш (в графе по
-#                                                        умолчанию не используется)
+#   ComfyUI-MiniMaxH3-CLIPCached @ 507c1ecd — CLIP-кэш (в графе по умолчанию
+#     не используется). Апстрим удалён; пин берётся из публичных форков,
+#     установка best-effort.
 # Ошибки установки pip-зависимостей Sol/CLIPCached не валят сборку (тяжёлые
 # CUDA-пакеты), но печатаются в лог сборки.
 # =============================================================================
@@ -169,7 +170,8 @@ _pin_node() {
         log "${name}: уже есть в базовом образе — сверяю пин ${sha}"
     else
         log "${name}: git clone ${url}"
-        git clone --depth 1 "${url}" "${dst}"
+        # return 1, а не exit: вызывающий код решает, критичен ли узел.
+        git clone --depth 1 "${url}" "${dst}" || return 1
     fi
     # fetch по SHA GitHub поддерживает; если нет — commit может уже быть в
     # shallow HEAD (тогда checkout ниже сработает).
@@ -177,8 +179,8 @@ _pin_node() {
     if ! git -C "${dst}" checkout --detach "${sha}" >/dev/null 2>&1; then
         warn "${name}: SHA ${sha} отсутствует в shallow-клоне — переклонирую полностью"
         rm -rf "${dst}"
-        git clone "${url}" "${dst}"
-        git -C "${dst}" checkout --detach "${sha}"
+        git clone "${url}" "${dst}" || return 1
+        git -C "${dst}" checkout --detach "${sha}" || return 1
     fi
     log "${name}: $(git -C "${dst}" log -1 --format='%h %ci %s')"
 }
@@ -214,10 +216,32 @@ fi
 
 # 5.4 CLIPCached (MIT): ставится в образ, в графе по умолчанию НЕ
 #     используется. Любые ошибки установки не должны валить сборку.
-_pin_node "https://github.com/Mu5hr00moO/ComfyUI-MiniMaxH3-CLIPCached" \
-    "${_custom_nodes}/ComfyUI-MiniMaxH3-CLIPCached" \
-    "507c1ecd7c92439134e097e0fac34381340ab8c9"
-if [[ -f "${_custom_nodes}/ComfyUI-MiniMaxH3-CLIPCached/requirements.txt" ]]; then
+#
+#     Апстрим Mu5hr00moO/ComfyUI-MiniMaxH3-CLIPCached удалён с GitHub
+#     (404 на 2026-11-26), из-за чего `git clone` запрашивал учётные данные и
+#     валил весь build. Тот же пин отдаётся публичными форками; SHA фиксирует
+#     содержимое, поэтому зеркало не меняет устанавливаемый код. Если форки
+#     пропадут, собираем образ без необязательного узла.
+_clipcached_sha="507c1ecd7c92439134e097e0fac34381340ab8c9"
+_clipcached_sources=(
+    "https://github.com/brahianrosswill/ComfyUI-MiniMaxH3-CLIPCached"
+    "https://github.com/nikhilash6/ComfyUI-MiniMaxH3-CLIPCached"
+)
+_clipcached_installed=0
+for _clipcached_url in "${_clipcached_sources[@]}"; do
+    if _pin_node "${_clipcached_url}" \
+        "${_custom_nodes}/ComfyUI-MiniMaxH3-CLIPCached" \
+        "${_clipcached_sha}"; then
+        _clipcached_installed=1
+        break
+    fi
+    warn "CLIPCached: ${_clipcached_url} не отдал пин ${_clipcached_sha} — пробую следующее зеркало"
+    rm -rf "${_custom_nodes}/ComfyUI-MiniMaxH3-CLIPCached"
+done
+if [[ "${_clipcached_installed}" != "1" ]]; then
+    warn "CLIPCached: ни одно зеркало не отдало пин ${_clipcached_sha} — образ собирается без узла (в графе по умолчанию не используется)"
+fi
+if [[ "${_clipcached_installed}" == "1" && -f "${_custom_nodes}/ComfyUI-MiniMaxH3-CLIPCached/requirements.txt" ]]; then
     if ! _pip "${COMFYUI_PYTHON}" -r "${_custom_nodes}/ComfyUI-MiniMaxH3-CLIPCached/requirements.txt"; then
         warn "CLIPCached: pip -r requirements.txt не установился — образ собирается, см. лог сборки"
     fi
